@@ -334,20 +334,25 @@ jobs:
             echo "No hidden test set configured, using public test.npz."
           fi
 
-      # Re-evaluate every submission so the leaderboard reflects the canonical
-      # test set (especially important when switching to the hidden test set).
-      - name: Evaluate all submissions
+      # Only evaluate submissions that don't have a result JSON yet.
+      # To re-evaluate everything (e.g. after switching to hidden test set),
+      # manually delete results/*.json and re-run via workflow_dispatch.
+      - name: Evaluate new submissions
         run: |
           mkdir -p results
           for sub_dir in submissions/*/; do
             slug=$(basename "$sub_dir")
-            # Skip the example template.
             [ "$slug" = "example" ] && continue
+            out="results/${slug}.json"
+            if [ -f "$out" ]; then
+              echo "=== Skipping $slug (result already exists) ==="
+              continue
+            fi
             echo "=== Evaluating $slug ==="
             python scripts/evaluate_submission.py \
               --submission "$sub_dir" \
               --data-dir data \
-              --output-json "results/${slug}.json" || \
+              --output-json "$out" || \
               echo "WARNING: evaluation failed for $slug — skipping."
           done
 
