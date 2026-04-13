@@ -182,8 +182,44 @@ class NanoPitchDataset(Dataset):
 
         return mel_clean, mel_noise, vad, f0
 
+import random
+import torch
 
-def augment_mel_batch(mel_clean, mel_noise, snr_range, device):
+def specaugment(mel, time_mask_param=20, freq_mask_param=8):
+    """
+    Apply SpecAugment to log-mel spectrogram.
+
+    Parameters
+    ----------
+    mel : Tensor, shape (B, T, N_MELS)
+        The log-mel spectrogram (batch, time, freq)
+    time_mask_param : int
+        The maximum length of the time mask (in frames)
+    freq_mask_param : int
+        The maximum length of the frequency mask (in mel bands)
+
+    Returns
+    -------
+    Tensor : Augmented mel spectrogram
+    """
+
+    B, T, N_MELS = mel.shape
+
+    # Frequency masking
+    freq_mask = random.randint(0, freq_mask_param)
+    for b in range(B):
+        f0 = random.randint(0, N_MELS - freq_mask)
+        mel[b, :, f0:f0 + freq_mask] = 0
+
+    # Time masking
+    time_mask = random.randint(0, time_mask_param)
+    for b in range(B):
+        t0 = random.randint(0, T - time_mask)
+        mel[b, t0:t0 + time_mask, :] = 0
+
+    return mel
+
+def augment_mel_batch(mel_clean, mel_noise, snr_range, device, use_specaug=False):
     """Training-time augmentation: mix clean and noise log-mel.
 
     Parameters
@@ -211,7 +247,30 @@ def augment_mel_batch(mel_clean, mel_noise, snr_range, device):
     This stub returns ``mel_clean`` unchanged so the trainer runs without
     augmentation until you add the above (or your own variant).
     """
-    return mel_clean
+
+    #return mel_clean
+
+    """
+    Mix clean + noise log-mel spectrograms at random SNR per batch item.
+    """
+
+    B = mel_clean.size(0)
+
+    #sample SNR per example (in dB)
+    snr_db = torch.empty(B, 1, 1, device=device).uniform_(*snr_range)
+
+    #convert SNR (dB → log amplitude scale)
+    # 20 because mel is power-like in log domain
+    gain = -snr_db * (np.log(10.0) / 20.0)
+
+    #log-space mixing 
+    mel_mix = torch.logaddexp(mel_clean, mel_noise + gain)
+
+    if use_specaug:
+        mel_mix = specaugment(mel_mix)
+
+    return mel_mix
+
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -243,7 +302,7 @@ def train_one_epoch(model, dataloader, optimizer, scheduler, writer,
             pitch_target[b] = torch.from_numpy(pg)
 
         # ── Data augmentation (implement in augment_mel_batch) ──
-        mel_mix = augment_mel_batch(mel_clean, mel_noise, args.snr_range, device)
+        mel_mix = augment_mel_batch(mel_clean, mel_noise, args.snr_range, device, True)
 
         # ── Forward Pass ──
         # Causal convs → output same length as input, no trimming needed
