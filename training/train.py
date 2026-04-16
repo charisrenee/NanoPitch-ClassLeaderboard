@@ -182,7 +182,7 @@ class NanoPitchDataset(Dataset):
 
         return mel_clean, mel_noise, vad, f0
 
-
+'''
 def augment_mel_batch(mel_clean, mel_noise, snr_range, device):
     """Training-time augmentation: mix clean and noise log-mel.
 
@@ -211,8 +211,58 @@ def augment_mel_batch(mel_clean, mel_noise, snr_range, device):
     This stub returns ``mel_clean`` unchanged so the trainer runs without
     augmentation until you add the above (or your own variant).
     """
-    return mel_clean
+    B = mel_clean.size(0)
+    snr_db = (torch.rand(B, 1, 1, device=device)
+              * (snr_range[1] - snr_range[0]) + snr_range[0])
+    gain_offset = -snr_db * (np.log(10.0) / 20.0)
+    return torch.logaddexp(mel_clean, mel_noise + gain_offset)
+'''
 
+import random
+
+def augment_mel_batch(mel_clean, mel_noise, snr_range, device,
+                      apply_prob=0.8, F=8, T=20):
+    """
+    Mix clean + noise in log domain and apply SpecAugment.
+
+    Parameters
+    ----------
+    mel_clean, mel_noise : (B, T, N_MELS)
+    snr_range : (min_db, max_db)
+    apply_prob : probability of applying augmentation
+    F : max frequency mask width
+    T : max time mask width
+    """
+
+    B, T_len, N_MELS = mel_clean.shape
+
+    # Decide whether to apply augmentation
+    if torch.rand(1).item() > apply_prob:
+        return mel_clean
+
+    # ---- 1. SNR Mixing in log domain ----
+    snr_db = (torch.rand(B, 1, 1, device=device)
+              * (snr_range[1] - snr_range[0]) + snr_range[0])
+
+    gain_offset = -snr_db * (np.log(10.0) / 20.0)
+
+    mel = torch.logaddexp(mel_clean, mel_noise + gain_offset)
+
+    # ---- 2. SpecAugment ----
+    for b in range(B):
+        # Frequency masking
+        f = random.randint(0, F)
+        if f > 0:
+            f0 = random.randint(0, N_MELS - f)
+            mel[b, :, f0:f0+f] = 0.0
+
+        # Time masking
+        t = random.randint(0, T)
+        if t > 0:
+            t0 = random.randint(0, T_len - t)
+            mel[b, t0:t0+t, :] = 0.0
+
+    return mel
 
 # ═══════════════════════════════════════════════════════════════════════
 # Training Loop (one epoch)
