@@ -63,7 +63,7 @@
 <body>
   <h1>NanoPitch Student Leaderboard</h1>
   <p class="subtitle">
-    2 submissions &nbsp;·&nbsp; Last updated: 2026-04-16 &nbsp;·&nbsp;
+    3 submissions &nbsp;·&nbsp; Last updated: 2026-04-16 &nbsp;·&nbsp;
     Realtime Viterbi decoder &nbsp;·&nbsp;
     <a href="LEADERBOARD.md">Static MD table</a>
   </p>
@@ -117,11 +117,13 @@
 const D = {
   "labels": [
     "Charis NoiseAugBaseline",
-    "Charis Test"
+    "Charis Test",
+    "Charis - Noise Augmentation v2"
   ],
   "colors": [
     "#4C72B0",
-    "#DD8452"
+    "#DD8452",
+    "#55A868"
   ],
   "snr_labels": [
     "Clean",
@@ -147,6 +149,14 @@ const D = {
       89.04,
       89.75,
       92.21
+    ],
+    [
+      90.08,
+      88.42,
+      86.29,
+      85.46,
+      90.46,
+      87.5
     ]
   ],
   "ger_by_snr": [
@@ -165,23 +175,35 @@ const D = {
       10.96,
       10.25,
       7.79
+    ],
+    [
+      9.92,
+      11.58,
+      13.71,
+      14.54,
+      9.54,
+      12.5
     ]
   ],
   "rpa_clean": [
     96.61,
-    94.82
+    94.82,
+    90.08
   ],
   "rpa_macro": [
     91.89,
-    90.2
+    90.2,
+    88.03
   ],
   "ger_clean": [
     3.39,
-    5.18
+    5.18,
+    9.92
   ],
   "ger_macro": [
     8.11,
-    9.8
+    9.8,
+    11.96
   ],
   "table_rows": [
     {
@@ -207,6 +229,18 @@ const D = {
       "vdr_macro": 66.25,
       "vad_clean": 98.34,
       "vad_macro": 87.15
+    },
+    {
+      "name": "Charis - Noise Augmentation v2",
+      "note": "Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3).",
+      "rpa_clean": 90.08,
+      "rpa_macro": 88.03,
+      "ger_clean": 9.92,
+      "ger_macro": 11.96,
+      "vdr_clean": 62.27,
+      "vdr_macro": 58.26,
+      "vad_clean": 95.75,
+      "vad_macro": 94.17
     }
   ]
 };
