@@ -94,6 +94,8 @@ parser.add_argument("--seq-len", type=int, default=200,
                     help="training clip length in frames (200 = 2 seconds)")
 parser.add_argument("--num-workers", type=int, default=0,
                     help="data loading threads (0 = main thread only)")
+parser.add_argument("--use-specaug", action="store_true",
+                    help="use SpecAugment data augmentation")
 
 # Data augmentation (used by augment_mel_batch once implemented)
 parser.add_argument("--snr-range", type=float, nargs=2, default=[-5.0, 20.0],
