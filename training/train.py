@@ -243,33 +243,14 @@ def augment_mel_batch(mel_clean, mel_noise, snr_range, device, use_specaug=False
 
     Returns
     -------
-    Tensor (B, T, N_MELS) — mel passed to the model.
+    Tensor (B, T, N_MELS) — augmented mel
 
-    Student exercise
-    ----------------
-    Implement random SNR mixing. For each batch row, draw ``snr_db`` uniformly
-    from ``snr_range``, convert to a log-domain gain, and combine clean and
-    noise with ``torch.logaddexp`` for numerical stability, e.g.::
-
-        B = mel_clean.size(0)
-        snr_db = (torch.rand(B, 1, 1, device=device)
-                  * (snr_range[1] - snr_range[0]) + snr_range[0])
-        gain_offset = -snr_db * (np.log(10.0) / 20.0)
-        return torch.logaddexp(mel_clean, mel_noise + gain_offset)
-
-    This stub returns ``mel_clean`` unchanged so the trainer runs without
-    augmentation until you add the above (or your own variant).
-    """
-
-    #return mel_clean
-
-    """
     Mix clean + noise log-mel spectrograms at random SNR per batch item.
     """
 
     B = mel_clean.size(0)
 
-    #sample SNR per example (in dB)
+    # Sample SNR per example (in dB)
     snr_db = torch.empty(B, 1, 1, device=device).uniform_(*snr_range)
 
     #convert SNR (dB → log amplitude scale)
@@ -390,7 +371,7 @@ def evaluate(model, data_dir, writer, epoch, device, args):
     test_path = os.path.join(data_dir, "test.npz")
     if not os.path.exists(test_path):
         print("  [eval] test.npz not found, skipping")
-        return
+        return None
 
     test = np.load(test_path)
     clips = test['clips']       # (N, T, 40) — noisy mel input
