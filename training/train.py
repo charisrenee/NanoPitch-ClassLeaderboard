@@ -280,7 +280,10 @@ def augment_mel_batch(mel_clean, mel_noise, snr_range, device, use_specaug=False
 def train_one_epoch(model, dataloader, optimizer, scheduler, writer,
                     epoch, device, args):
     model.train()  # enable dropout, batch norm, etc. (if any)
-    bce = nn.BCELoss(reduction='none')  # per-element BCE, we'll weight manually
+    # BCEWithLogitsLoss fuses sigmoid + BCE into one numerically-stable op,
+    # so we ask the model for raw logits below (return_logits=True). Also a
+    # prerequisite for adding pos_weight / focal loss to the VAD head.
+    bce = nn.BCEWithLogitsLoss(reduction='none')
     running = {'loss': 0, 'vad': 0, 'pitch': 0}
     n_batches = 0
 
@@ -312,8 +315,10 @@ def train_one_epoch(model, dataloader, optimizer, scheduler, writer,
                                     device, args.use_specaug)
 
         # ── Forward Pass ──
-        # Causal convs → output same length as input, no trimming needed
-        pred_vad, pred_pitch, _ = model(mel_mix)
+        # Causal convs → output same length as input, no trimming needed.
+        # return_logits=True: skip the final sigmoid so BCEWithLogitsLoss can
+        # apply its fused (and stable) sigmoid+BCE internally.
+        pred_vad, pred_pitch, _ = model(mel_mix, return_logits=True)
 
         # ── Loss Computation ──
         # VAD loss: standard binary cross-entropy

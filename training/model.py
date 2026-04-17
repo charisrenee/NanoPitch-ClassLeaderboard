@@ -393,16 +393,20 @@ class NanoPitch(nn.Module):
                     if 'weight_hh' in pname:
                         nn.init.orthogonal_(p)
 
-    def forward(self, mel, states=None):
+    def forward(self, mel, states=None, return_logits=False):
         """Run the model on a batch of mel spectrograms.
 
         Args:
             mel: (batch, time, 40) — log-mel spectrogram input
             states: optional GRU hidden states (for continuing a stream)
+            return_logits: if True, return raw pre-sigmoid scores instead of
+                probabilities. Used by the training loop together with
+                ``nn.BCEWithLogitsLoss`` for numerical stability; inference
+                and export callers should leave this False.
 
         Returns:
-            vad:    (batch, time, 1)   — voice activity probability
-            pitch:  (batch, time, 360) — pitch posteriorgram
+            vad:    (batch, time, 1)   — voice activity probability (or logit)
+            pitch:  (batch, time, 360) — pitch posteriorgram (or logits)
             states: list of 3 GRU hidden states
 
         Output has the SAME length as input thanks to causal padding.
@@ -438,18 +442,25 @@ class NanoPitch(nn.Module):
         # Concatenate features from all depths (skip connections)
         cat = torch.cat([x, g1, g2, g3], dim=-1)  # (B, T, 384)
 
-        # Output heads: sigmoid squashes to [0, 1]
-        vad = torch.sigmoid(self.dense_vad(cat))      # (B, T, 1)
-        pitch = torch.sigmoid(self.dense_pitch(cat))   # (B, T, 360)
+        # Output heads. Sigmoid squashes to [0, 1]; skipped when return_logits
+        # is True so the caller can feed logits straight into BCEWithLogitsLoss.
+        vad_logits = self.dense_vad(cat)           # (B, T, 1)
+        pitch_logits = self.dense_pitch(cat)       # (B, T, 360)
+        if return_logits:
+            return vad_logits, pitch_logits, [h1, h2, h3]
+        vad = torch.sigmoid(vad_logits)
+        pitch = torch.sigmoid(pitch_logits)
 
         return vad, pitch, [h1, h2, h3]
 
-    def forward_single_frame(self, mel_frame, states):
+    def forward_single_frame(self, mel_frame, states, return_logits=False):
         """Process one frame at a time (for real-time/streaming use).
 
         With causal convolutions, we maintain a small history buffer for
         each conv layer (2 past frames each). Audio arrives every 10ms,
         and we produce one output immediately — zero added latency.
+
+        ``return_logits`` mirrors ``forward`` for training-time use.
         """
         conv1_buf = states['conv1_buf']  # (1, 2, n_mels) — 2 past frames
         conv2_buf = states['conv2_buf']  # (1, 2, cond_size)
@@ -473,8 +484,13 @@ class NanoPitch(nn.Module):
         g3, h3 = self.gru3(g2, h3)
 
         cat = torch.cat([x, g1, g2, g3], dim=-1)
-        vad = torch.sigmoid(self.dense_vad(cat))
-        pitch = torch.sigmoid(self.dense_pitch(cat))
+        vad_logits = self.dense_vad(cat)
+        pitch_logits = self.dense_pitch(cat)
+        if return_logits:
+            vad, pitch = vad_logits, pitch_logits
+        else:
+            vad = torch.sigmoid(vad_logits)
+            pitch = torch.sigmoid(pitch_logits)
 
         new_states = {
             'conv1_buf': conv1_buf,
