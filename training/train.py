@@ -248,16 +248,18 @@ def augment_mel_batch(mel_clean, mel_noise, snr_range, device, use_specaug=False
     Mix clean + noise log-mel spectrograms at random SNR per batch item.
     """
 
-    B = mel_clean.size(0)
+    B, T, F = mel_clean.shape
 
     # Sample SNR per example (in dB)
     snr_db = torch.empty(B, 1, 1, device=device).uniform_(*snr_range)
 
-    #convert SNR (dB → log amplitude scale)
-    # 20 because mel is power-like in log domain
-    gain = -snr_db * (np.log(10.0) / 20.0)
+    # Calibrate against the actual per-clip mean log-power so the realised
+    # SNR matches the requested one regardless of clean/noise level offsets.
+    # Factor of 10 (not 20) because mel is log-power, not log-amplitude.
+    p_clean = torch.logsumexp(mel_clean, dim=(1, 2), keepdim=True) - np.log(T * F)
+    p_noise = torch.logsumexp(mel_noise, dim=(1, 2), keepdim=True) - np.log(T * F)
+    gain = p_clean - p_noise - snr_db * (np.log(10.0) / 10.0)
 
-    #log-space mixing 
     mel_mix = torch.logaddexp(mel_clean, mel_noise + gain)
 
     if use_specaug:
