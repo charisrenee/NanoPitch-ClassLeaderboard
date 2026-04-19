@@ -1,0 +1,2 @@
+name: "Festus Ewakaa Kahunla"
+note: "Noise augmentation (70% noisy / 30% clean via logaddexp) on top of the label-mismatch fix. Decoupled VAD head (trained on RMS-vad to match eval) from pitch-loss gate (f0>0 for complete pitch supervision). Resumed from exp11 with low LR (5e-5) for 50 epochs. Onset sweep found optich disagrees with RMVPE on 12.1% of frames. Added cosine annealing LR (CosineAnnealingWarmRestarts, T_0=10, T_mult=2, eta_min=1e-5). Reduced Viterbi onset penalty from 2.0 to 1.0. Trained 100 epochs from scratch (50 + 50 resume)."
