@@ -4,7 +4,11 @@
 >
 > - 📊 **[View Leaderboard](https://charisrenee.github.io/NanoPitch-ClassLeaderboard/)** — interactive charts, sortable table (RPA, Gross Error Rate, VDR, VAD across all noise conditions)
 > - 📋 **[Static Leaderboard Table](LEADERBOARD.md)** — plain Markdown version
+<<<<<<< Updated upstream
 > - 🤝 **[How to Submit](CONTRIBUTING.md)** — instructions for adding your model and appearing on the leaderboard
+=======
+> - 🤝 **[How to Submit](CONTRIBUTING.md)** — fork this repo, add your submission, and open a PR back to **this** repo (not the original NanoPitch upstream)
+>>>>>>> Stashed changes
 
 ---
 

@@ -243,6 +243,7 @@ jobs:
       # ── Post PR comment ─────────────────────────────────────────────────────
       - name: Post results as PR comment
         if: steps.detect.outputs.skip != 'true'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.LEADERBOARD_PAT || secrets.GITHUB_TOKEN }}

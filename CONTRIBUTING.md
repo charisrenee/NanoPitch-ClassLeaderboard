@@ -34,11 +34,54 @@ Both fields are required. `note` appears on the leaderboard and in the PR commen
 
 ## 3. Open a pull request
 
-> **Do not fork this repo.** Because it is a template repository, forking puts you in GitHub's fork network and PRs may target the wrong upstream. Use the steps below instead.
+### Fork the repo (one-time setup)
 
-1. If you haven't already, click **"Use this template" → "Create a new repository"** on the GitHub repo page to create your own copy.
-2. Clone your copy, add your `submissions/your_name/` directory, and push.
-3. Open a PR from your repo against `main` on this repo.
+If you have not already, **fork this repo** using the **"Fork"** button on GitHub. Your fork is where you should be doing all of your work and experiments — treat it as your personal copy of the project.
+
+### Create a submissions branch
+
+On your fork, create a branch called `submissions` (or any descriptive name). This is the branch you will use to add your submission files and open PRs against the leaderboard.
+
+> **Important:** When opening a PR, make sure the **base repository is set to `charisrenee/NanoPitch-ClassLeaderboard`**, not the original upstream. GitHub may default to the upstream, so double-check the dropdown before submitting.
+
+Only include the **two submission files** in your PR — `weights.pth` and `submission.yaml` inside your `submissions/your_name/` directory. Do not add training scripts, notebooks, or other experiment files to this branch.
+
+---
+
+### Opening a PR from VS Code
+
+1. Make sure the [GitHub Pull Requests extension](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github) is installed.
+2. Stage and commit your two submission files, then push your `submissions` branch to your fork.
+3. VS Code will show a **"Create Pull Request"** prompt in the Source Control panel — click it.
+4. In the PR creation view, set the **base repository** to `charisrenee/NanoPitch-ClassLeaderboard` and the base branch to `main`.
+5. Title your PR and click **Create**.
+
+### Opening a PR from GitHub Desktop
+
+1. Commit your two submission files on your `submissions` branch in GitHub Desktop.
+2. Click **Push origin** to push the branch to your fork on GitHub.
+3. GitHub Desktop will show a **"Create Pull Request"** button — click it. This opens GitHub in your browser.
+4. On GitHub, confirm the **base repository** is `charisrenee/NanoPitch-ClassLeaderboard` (not the upstream). Change it via the dropdown if needed.
+5. Submit the PR.
+
+### Opening a PR from the command line
+
+```bash
+# From your fork's local clone, on your submissions branch:
+git add submissions/your_name/weights.pth submissions/your_name/submission.yaml
+git commit -m "Add submission: your_name"
+git push origin submissions
+
+# Then open GitHub in your browser and click "Compare & pull request",
+# or use the GitHub CLI:
+gh pr create \
+  --repo charisrenee/NanoPitch-ClassLeaderboard \
+  --base main \
+  --head your-github-username:submissions \
+  --title "Submission: your_name"
+```
+
+---
 
 The bot will automatically:
 - Evaluate your checkpoint against the test set.
