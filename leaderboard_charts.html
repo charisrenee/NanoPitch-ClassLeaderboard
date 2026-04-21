@@ -63,7 +63,7 @@
 <body>
   <h1>NanoPitch Student Leaderboard</h1>
   <p class="subtitle">
-    9 submissions &nbsp;·&nbsp; Last updated: 2026-04-21 &nbsp;·&nbsp;
+    12 submissions &nbsp;·&nbsp; Last updated: 2026-04-21 &nbsp;·&nbsp;
     Realtime Viterbi decoder &nbsp;·&nbsp;
     <a href="LEADERBOARD.md">Static MD table</a>
   </p>
@@ -119,12 +119,15 @@ const D = {
     "Festus Ewakaa Kahunla",
     "Dillon Best",
     "Brady Chase",
+    "Ilysia Krzywonos",
     "Charis NoiseAugBaseline",
     "Dillon Positive Weight",
     "Charis Test",
     "Rajat Sharma",
     "Stefan Snyder - Baseline",
-    "Charis - Noise Augmentation v2"
+    "Kim Huy Heng",
+    "Charis - Noise Augmentation v2",
+    "Chris Rui Zhao"
   ],
   "colors": [
     "#4C72B0",
@@ -170,6 +173,14 @@ const D = {
       94.32
     ],
     [
+      96.77,
+      92.12,
+      90.91,
+      93.4,
+      96.2,
+      94.24
+    ],
+    [
       96.61,
       87.79,
       88.81,
@@ -210,12 +221,28 @@ const D = {
       86.28
     ],
     [
+      90.78,
+      89.17,
+      86.98,
+      88.5,
+      91.61,
+      90.08
+    ],
+    [
       90.08,
       88.42,
       86.29,
       85.46,
       90.46,
       87.5
+    ],
+    [
+      89.95,
+      83.35,
+      82.93,
+      86.18,
+      87.62,
+      86.84
     ]
   ],
   "ger_by_snr": [
@@ -242,6 +269,14 @@ const D = {
       7.94,
       5.57,
       5.68
+    ],
+    [
+      3.23,
+      7.88,
+      9.09,
+      6.6,
+      3.8,
+      5.76
     ],
     [
       3.39,
@@ -284,57 +319,85 @@ const D = {
       13.72
     ],
     [
+      9.22,
+      10.83,
+      13.02,
+      11.5,
+      8.39,
+      9.92
+    ],
+    [
       9.92,
       11.58,
       13.71,
       14.54,
       9.54,
       12.5
+    ],
+    [
+      10.05,
+      16.65,
+      17.07,
+      13.82,
+      12.38,
+      13.16
     ]
   ],
   "rpa_clean": [
     97.1,
     97.01,
     96.81,
+    96.77,
     96.61,
     95.37,
     94.82,
     93.83,
     91.12,
-    90.08
+    90.78,
+    90.08,
+    89.95
   ],
   "rpa_macro": [
     91.67,
     94.1,
     93.42,
+    93.94,
     91.89,
     92.2,
     90.2,
     91.86,
     86.28,
-    88.03
+    89.52,
+    88.03,
+    86.15
   ],
   "ger_clean": [
     2.9,
     2.99,
     3.19,
+    3.23,
     3.39,
     4.63,
     5.18,
     6.17,
     8.88,
-    9.92
+    9.22,
+    9.92,
+    10.05
   ],
   "ger_macro": [
     8.33,
     5.9,
     6.58,
+    6.06,
     8.11,
     7.8,
     9.8,
     8.14,
     13.72,
-    11.96
+    10.48,
+    11.96,
+    13.85
   ],
   "table_rows": [
     {
@@ -372,6 +435,18 @@ const D = {
       "vdr_macro": 64.19,
       "vad_clean": 80.01,
       "vad_macro": 81.13
+    },
+    {
+      "name": "Ilysia Krzywonos",
+      "note": "Adjusted the weight for pitch/VAD loss, implemented noise augmentation and learning rate scheduler",
+      "rpa_clean": 96.77,
+      "rpa_macro": 93.94,
+      "ger_clean": 3.23,
+      "ger_macro": 6.06,
+      "vdr_clean": 72.54,
+      "vdr_macro": 66.48,
+      "vad_clean": 97.92,
+      "vad_macro": 94.87
     },
     {
       "name": "Charis NoiseAugBaseline",
@@ -434,6 +509,18 @@ const D = {
       "vad_macro": 86.7
     },
     {
+      "name": "Kim Huy Heng",
+      "note": "Implemented a staged curriculum training pipeline",
+      "rpa_clean": 90.78,
+      "rpa_macro": 89.52,
+      "ger_clean": 9.22,
+      "ger_macro": 10.48,
+      "vdr_clean": 76.58,
+      "vdr_macro": 66.7,
+      "vad_clean": 97.92,
+      "vad_macro": 95.18
+    },
+    {
       "name": "Charis - Noise Augmentation v2",
       "note": "Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3).",
       "rpa_clean": 90.08,
@@ -444,6 +531,18 @@ const D = {
       "vdr_macro": 58.26,
       "vad_clean": 95.75,
       "vad_macro": 94.17
+    },
+    {
+      "name": "Chris Rui Zhao",
+      "note": "Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions.",
+      "rpa_clean": 89.95,
+      "rpa_macro": 86.15,
+      "ger_clean": 10.05,
+      "ger_macro": 13.85,
+      "vdr_clean": 93.65,
+      "vdr_macro": 89.1,
+      "vad_clean": 92.98,
+      "vad_macro": 91.5
     }
   ]
 };
