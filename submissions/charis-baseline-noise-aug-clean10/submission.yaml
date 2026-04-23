@@ -1,2 +1,0 @@
-name: "Charis - Noise Augmentation v2"
-note: "Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3)."
