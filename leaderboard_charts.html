@@ -63,7 +63,7 @@
 <body>
   <h1>NanoPitch Student Leaderboard</h1>
   <p class="subtitle">
-    14 submissions &nbsp;·&nbsp; Last updated: 2026-04-21 &nbsp;·&nbsp;
+    16 submissions &nbsp;·&nbsp; Last updated: 2026-04-23 &nbsp;·&nbsp;
     Realtime Viterbi decoder &nbsp;·&nbsp;
     <a href="LEADERBOARD.md">Static MD table</a>
   </p>
@@ -116,10 +116,12 @@
 <script>
 const D = {
   "labels": [
+    "Rajat Sharma",
     "Festus Ewakaa Kahunla",
     "Dillon Best",
     "Brady Chase",
     "Ilysia Krzywonos",
+    "Dillon RPA Focus",
     "Uddhav Jain",
     "Charis NoiseAugBaseline",
     "Dillon Positive Weight",
@@ -151,6 +153,14 @@ const D = {
   ],
   "rpa_by_snr": [
     [
+      98.0,
+      94.19,
+      93.71,
+      95.51,
+      97.51,
+      97.56
+    ],
+    [
       97.1,
       87.89,
       92.05,
@@ -181,6 +191,14 @@ const D = {
       93.4,
       96.2,
       94.24
+    ],
+    [
+      96.75,
+      93.31,
+      92.29,
+      94.35,
+      95.06,
+      94.06
     ],
     [
       96.66,
@@ -265,6 +283,14 @@ const D = {
   ],
   "ger_by_snr": [
     [
+      2.0,
+      5.81,
+      6.29,
+      4.49,
+      2.49,
+      2.44
+    ],
+    [
       2.9,
       12.11,
       7.95,
@@ -295,6 +321,14 @@ const D = {
       6.6,
       3.8,
       5.76
+    ],
+    [
+      3.25,
+      6.69,
+      7.71,
+      5.65,
+      4.94,
+      5.94
     ],
     [
       3.34,
@@ -378,10 +412,12 @@ const D = {
     ]
   ],
   "rpa_clean": [
+    98.0,
     97.1,
     97.01,
     96.81,
     96.77,
+    96.75,
     96.66,
     96.61,
     95.37,
@@ -394,10 +430,12 @@ const D = {
     89.95
   ],
   "rpa_macro": [
+    96.08,
     91.67,
     94.1,
     93.42,
     93.94,
+    94.3,
     93.74,
     91.89,
     92.2,
@@ -410,10 +448,12 @@ const D = {
     86.15
   ],
   "ger_clean": [
+    2.0,
     2.9,
     2.99,
     3.19,
     3.23,
+    3.25,
     3.34,
     3.39,
     4.63,
@@ -426,10 +466,12 @@ const D = {
     10.05
   ],
   "ger_macro": [
+    3.92,
     8.33,
     5.9,
     6.58,
     6.06,
+    5.7,
     6.26,
     8.11,
     7.8,
@@ -442,6 +484,18 @@ const D = {
     13.85
   ],
   "table_rows": [
+    {
+      "name": "Rajat Sharma",
+      "note": "Noise+SpecAugmentation(freq_mask=4, time_mask=10), cosineCosineAnnealingLR, sharper pitch supervision,VAD label and loss improvements (gru_size=128, cond_size=64, lr=1e-3).",
+      "rpa_clean": 98.0,
+      "rpa_macro": 96.08,
+      "ger_clean": 2.0,
+      "ger_macro": 3.92,
+      "vdr_clean": 78.58,
+      "vdr_macro": 71.93,
+      "vad_clean": 92.11,
+      "vad_macro": 91.54
+    },
     {
       "name": "Festus Ewakaa Kahunla",
       "note": "Fixed train/eval label mismatch: VAD target now derived from f0>0 (RMVPE) instead of the RMS-energy vad label, which disagrees with RMVPE on 12.1% of frames. Added cosine annealing LR (CosineAnnealingWarmRestarts, T_0=10, T_mult=2, eta_min=1e-5). Reduced Viterbi onset penalty from 2.0 to 1.0. Trained 100 epochs from scratch (50 + 50 resume).",
@@ -489,6 +543,18 @@ const D = {
       "vdr_macro": 66.48,
       "vad_clean": 97.92,
       "vad_macro": 94.87
+    },
+    {
+      "name": "Dillon RPA Focus",
+      "note": "Previous best with 0.4 weight ratio to prioritize RPA loss",
+      "rpa_clean": 96.75,
+      "rpa_macro": 94.3,
+      "ger_clean": 3.25,
+      "ger_macro": 5.7,
+      "vdr_clean": 78.3,
+      "vdr_macro": 71.24,
+      "vad_clean": 98.43,
+      "vad_macro": 96.35
     },
     {
       "name": "Uddhav Jain",
