@@ -12,6 +12,7 @@ test/*
 
 */data/*
 
+*.tex
 
 
 *.codex
