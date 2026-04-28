@@ -1,0 +1,141 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.6in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\setlist[itemize]{leftmargin=1.2em, itemsep=0.2em, topsep=0.2em}
+\setlength{\parindent}{0pt}
+\pagestyle{empty}
+
+\begin{document}
+\small
+
+{\Large \textbf{NanoPitch Project Reflection}} \hfill \textbf{Priontu Chowdhury}
+
+\vspace{0.4em}
+\textbf{Overview}
+\begin{itemize}
+    \item My goal was to improve mean RPA while preserving real-time performance. I started from the default baseline model (\texttt{cond\_size=64}, \texttt{gru\_size=96}, default training, no noise addition, no SpecAugment), then tested structured changes including SpecAugment, model-size sweeps, f0-consistent voicing, cosine annealing, time masking, early stopping, SNR curriculum, checkpoint fine-tuning, and finally resume-from-baseline augmentation.
+\end{itemize}
+
+\textbf{Modifications}
+\begin{itemize}
+    \item Ran a sweep over \texttt{cond\_size}, \texttt{gru\_size}, and frequency-mask width; the strongest sweep settings used \texttt{specaugment\_band=2} with (\texttt{cond\_size=64}, \texttt{gru\_size=96}), (\texttt{cond\_size=96}, \texttt{gru\_size=64}), and (\texttt{cond\_size=96}, \texttt{gru\_size=128}).
+    \item Built a stronger test-side training pipeline with f0-consistent voiced targets, cosine annealing, time masking, early stopping, and an SNR curriculum.
+    \item Created a conservative fine-tuning experiment from the default checkpoint and then a resume-with-augmentation experiment using the same baseline architecture.
+\end{itemize}
+
+\textbf{Rationale}
+\begin{itemize}
+    \item Early results suggested that training from scratch with heavier augmentation often hurt raw RPA, so I shifted strategy from ``more augmentation from scratch'' to ``start from the strongest clean model and add robustness carefully.''
+    \item I also found a mismatch between VAD labels and \texttt{f0>0}, so I tested f0-consistent voiced supervision to better align training and evaluation.
+\end{itemize}
+
+\textbf{Impact on Performance}
+\begin{itemize}
+    \item The default baseline model (\texttt{cond\_size=64}, \texttt{gru\_size=96}, default training, no noise addition, no SpecAugment) remained very strong for a long time: average offline RPA \(=0.9209\), realtime RPA \(=0.9028\), VAD accuracy \(=0.8693\), offline median cents \(=32.20\), and realtime median cents \(=40.80\).
+    \item The best overall model resumed that same default checkpoint and then applied the full augmented recipe (\texttt{cond\_size=64}, \texttt{gru\_size=96}, \texttt{epochs=100}, \texttt{batch\_size=384}, \texttt{lr=1.5e-3}, \texttt{min\_lr=2e-5}, \texttt{seq\_len=200}, \texttt{w\_pitch=1.5}, \texttt{w\_vad=0.1}, \texttt{snr\_range=[-5,20]}, \texttt{specaugment\_band=2}, \texttt{time\_mask=12}, cosine annealing, early stopping, and a 20-epoch SNR curriculum).
+    \item Compared with the default, this augmented resumed model improved offline RPA to \(0.9299\) (\(+0.0089\)), realtime RPA to \(0.9054\) (\(+0.0026\)), VAD accuracy to \(0.9274\) (\(+0.0581\)), reduced offline median cents to \(21.81\) (\(-10.39\)), and reduced realtime median cents to \(31.14\) (\(-9.66\)).
+\end{itemize}
+
+\textbf{Comparison}
+\begin{itemize}
+    \item What worked: moderate SpecAugment (\texttt{band=2}), larger conditioning sizes (\texttt{64} or \texttt{96}), and most importantly resuming from the strong default checkpoint before adding augmentation.
+    \item What did not work as well: training the full augmentation stack from scratch. Those models were systematic and reproducible, but they did not beat the raw RPA of the default baseline.
+    \item Main takeaway: the best strategy was not replacing the baseline, but preserving its strong optimization basin and then fine-tuning it with targeted augmentation.
+\end{itemize}
+
+\textbf{Repo Link}
+\begin{itemize}
+    \item \url{git@github.com:priontu/NanoPitch.git}
+\end{itemize}
+
+\textbf{Baseline Result (Default Model: \texttt{cond\_size=64}, \texttt{gru\_size=96}, default training, no noise addition, no SpecAugment)}
+
+{\tiny
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+\multicolumn{7}{c}{\textbf{Offline Viterbi}} \\
+\midrule
+Condition & VAD Acc & VDR & RPA & RCA & Gross & Med.\textcent \\
+\midrule
+-5 dB  & 78.8\% & 57.6\% & 87.9\% & 89.0\% & 12.1\% & 53.0 \\
++0 dB  & 81.4\% & 63.8\% & 90.7\% & 91.6\% & 9.4\%  & 50.6 \\
++5 dB  & 83.4\% & 68.3\% & 91.2\% & 91.2\% & 8.8\%  & 35.5 \\
++10 dB & 90.2\% & 68.7\% & 92.1\% & 92.5\% & 7.9\%  & 37.4 \\
++20 dB & 89.0\% & 69.5\% & 95.0\% & 95.0\% & 5.0\%  & 9.5 \\
+clean  & 98.8\% & 86.5\% & 95.8\% & 96.0\% & 4.2\%  & 7.3 \\
+\midrule
+overall & 86.9\% & 69.1\% & 92.1\% & 92.6\% & 7.9\% & 32.2 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.4em}
+
+\begin{tabular}{lcccccc}
+\toprule
+\multicolumn{7}{c}{\textbf{Realtime Viterbi}} \\
+\midrule
+Condition & VAD Acc & VDR & RPA & RCA & Gross & Med.\textcent \\
+\midrule
+-5 dB  & 78.8\% & 56.9\% & 86.0\% & 88.2\% & 14.0\% & 62.6 \\
++0 dB  & 81.4\% & 62.0\% & 88.4\% & 88.6\% & 11.7\% & 65.3 \\
++5 dB  & 83.4\% & 66.9\% & 89.2\% & 89.3\% & 10.8\% & 45.8 \\
++10 dB & 90.2\% & 67.2\% & 89.8\% & 90.3\% & 10.2\% & 52.7 \\
++20 dB & 89.0\% & 68.2\% & 93.1\% & 93.2\% & 6.9\%  & 10.4 \\
+clean  & 98.8\% & 84.5\% & 95.2\% & 95.5\% & 4.8\%  & 8.0 \\
+\midrule
+overall & 86.9\% & 67.6\% & 90.3\% & 90.8\% & 9.7\% & 40.8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+\textbf{Top Result (Resumed Default Model + Augmentation: \texttt{cond\_size=64}, \texttt{gru\_size=96}, \texttt{epochs=100}, \texttt{batch\_size=384}, \texttt{lr=1.5e-3}, \texttt{min\_lr=2e-5}, \texttt{specaugment\_band=2}, \texttt{time\_mask=12}, \texttt{w\_pitch=1.5}, \texttt{w\_vad=0.1})}
+
+{\tiny
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+\multicolumn{7}{c}{\textbf{Offline Viterbi}} \\
+\midrule
+Condition & VAD Acc & VDR & RPA & RCA & Gross & Med.\textcent \\
+\midrule
+-5 dB  & 89.6\% & 59.8\% & 89.1\% & 89.8\% & 10.9\% & 59.8 \\
++0 dB  & 89.9\% & 61.9\% & 92.8\% & 93.0\% & 7.2\%  & 18.7 \\
++5 dB  & 92.5\% & 65.8\% & 93.9\% & 94.0\% & 6.1\%  & 15.8 \\
++10 dB & 93.5\% & 69.2\% & 93.0\% & 93.1\% & 7.0\%  & 14.2 \\
++20 dB & 93.9\% & 68.4\% & 93.2\% & 93.3\% & 6.8\%  & 14.2 \\
+clean  & 97.1\% & 81.7\% & 95.6\% & 95.8\% & 4.4\%  & 10.4 \\
+\midrule
+overall & 92.7\% & 67.8\% & 93.0\% & 93.2\% & 7.0\% & 21.8 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.4em}
+
+\begin{tabular}{lcccccc}
+\toprule
+\multicolumn{7}{c}{\textbf{Realtime Viterbi}} \\
+\midrule
+Condition & VAD Acc & VDR & RPA & RCA & Gross & Med.\textcent \\
+\midrule
+-5 dB  & 89.6\% & 59.2\% & 84.8\% & 85.3\% & 15.2\% & 80.0 \\
++0 dB  & 89.9\% & 60.8\% & 89.5\% & 89.8\% & 10.5\% & 51.4 \\
++5 dB  & 92.5\% & 65.0\% & 92.6\% & 92.6\% & 7.4\%  & 16.5 \\
++10 dB & 93.5\% & 68.0\% & 90.8\% & 90.9\% & 9.2\%  & 14.7 \\
++20 dB & 93.9\% & 67.6\% & 91.1\% & 91.1\% & 8.9\%  & 15.4 \\
+clean  & 97.1\% & 79.8\% & 94.3\% & 94.7\% & 5.7\%  & 10.6 \\
+\midrule
+overall & 92.7\% & 66.7\% & 90.5\% & 90.8\% & 9.5\% & 31.1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+\end{document}
