@@ -63,7 +63,7 @@
 <body>
   <h1>NanoPitch Student Leaderboard</h1>
   <p class="subtitle">
-    17 submissions &nbsp;·&nbsp; Last updated: 2026-04-23 &nbsp;·&nbsp;
+    18 submissions &nbsp;·&nbsp; Last updated: 2026-04-30 &nbsp;·&nbsp;
     Realtime Viterbi decoder &nbsp;·&nbsp;
     <a href="LEADERBOARD.md">Static MD table</a>
   </p>
@@ -127,6 +127,7 @@ const D = {
     "Dillon Positive Weight",
     "Charis Test",
     "Elliot Lee \u2013 Augment Mel + Wide SNR",
+    "Xin Zheng",
     "Rajat Sharma",
     "Dabin Seomun",
     "Stefan Snyder - Baseline",
@@ -240,6 +241,14 @@ const D = {
       91.19,
       93.7,
       94.05
+    ],
+    [
+      94.35,
+      89.63,
+      86.77,
+      89.2,
+      92.68,
+      90.76
     ],
     [
       93.83,
@@ -380,6 +389,14 @@ const D = {
       5.95
     ],
     [
+      5.65,
+      10.37,
+      13.23,
+      10.8,
+      7.32,
+      9.24
+    ],
+    [
       6.17,
       11.35,
       11.43,
@@ -440,6 +457,7 @@ const D = {
     95.37,
     94.82,
     94.7,
+    94.35,
     93.83,
     92.76,
     91.12,
@@ -459,6 +477,7 @@ const D = {
     92.2,
     90.2,
     91.79,
+    90.56,
     91.86,
     90.24,
     86.28,
@@ -478,6 +497,7 @@ const D = {
     4.63,
     5.18,
     5.3,
+    5.65,
     6.17,
     7.24,
     8.88,
@@ -497,6 +517,7 @@ const D = {
     7.8,
     9.8,
     8.21,
+    9.43,
     8.14,
     9.77,
     13.72,
@@ -636,6 +657,18 @@ const D = {
       "vdr_macro": 57.96,
       "vad_clean": 96.87,
       "vad_macro": 94.65
+    },
+    {
+      "name": "Xin Zheng",
+      "note": "Implemented augment_mel_batch with torch.logaddexp for numerically stable log-mel noise mixing. Applied random SNR augmentation (-10 to +30 dB) and weighted pitch loss (w-pitch=2.0) to improve robustness. Achieved 95.98% offline RPA (clean) and 91.08% RPA (-5dB SNR), with realtime browser performance at 94.35% RPA (clean) and 89.63% RPA (-5dB).",
+      "rpa_clean": 94.35,
+      "rpa_macro": 90.56,
+      "ger_clean": 5.65,
+      "ger_macro": 9.43,
+      "vdr_clean": 52.23,
+      "vdr_macro": 47.08,
+      "vad_clean": 95.93,
+      "vad_macro": 92.63
     },
     {
       "name": "Rajat Sharma",
