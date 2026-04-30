@@ -26,12 +26,13 @@ Raw Pitch Accuracy on clean (no-noise) test clips. Higher is better.
 | 10 | Charis Test | 94.8% | 87.3% | 88.0% | 98.3% | 6.5¢ | Baseline run with default hyperparameters (gru_size=96, cond_size=64, lr=1e-3). |
 | 11 | Elliot Lee – Augment Mel + Wide SNR | 94.7% | 87.1% | 90.0% | 96.9% | 11.8¢ | — |
 | 12 | Xin Zheng | 94.3% | 86.8% | 89.6% | 95.9% | 17.6¢ | Implemented augment_mel_batch with torch.logaddexp for numerically stable log-mel noise mixing. Applied random SNR augmentation (-10 to +30 dB) and weighted pitch loss (w-pitch=2.0) to improve robustness. Achieved 95.98% offline RPA (clean) and 91.08% RPA (-5dB SNR), with realtime browser performance at 94.35% RPA (clean) and 89.63% RPA (-5dB). |
-| 13 | Rajat Sharma | 93.8% | 88.6% | 88.6% | 97.0% | 17.2¢ | Baseline run with default hyperparameters and default augmentation (gru_size=96, cond_size=64, lr=1e-3). |
-| 14 | Dabin Seomun | 92.8% | 87.3% | 88.6% | 97.3% | 12.4¢ | Noise augmentation using a normal distribution for SNR sampling (mean=10, std=5) & Ran 100 epochs |
-| 15 | Stefan Snyder - Baseline | 91.1% | 85.4% | 81.0% | 98.4% | 13.0¢ | Baseline run with default hyperparameters, and the baseline noise augmentation (gru_size=96, cond_size=64, lr=1e-3). |
-| 16 | Kim Huy Heng | 90.8% | 87.0% | 89.2% | 97.9% | 15.8¢ | Implemented a staged curriculum training pipeline |
-| 17 | Charis - Noise Augmentation v2 | 90.1% | 86.3% | 88.4% | 95.8% | 18.0¢ | Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3). |
-| 18 | Chris Rui Zhao | 90.0% | 82.9% | 83.4% | 93.0% | 12.6¢ | Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions. |
+| 13 | Priontu Chowdhury | 94.3% | 89.5% | 84.7% | 79.5% | 10.7¢ | exp_v4_1 fine-tuned the best default baseline exp1 (default training, no noise addition, no SpecAugment) using the full augmented recipe (cond_size=64, gru_size=96, epochs=100, batch_size=384, lr=1.5e-3, min_lr=2e-5, seq_len=200, w_vad=0.1, w_pitch=1.5, snr_range=[-5,20], specaugment_band=2, time_mask=12, cosine annealing, early stopping, and 20-epoch SNR curriculum), and produced the best overall results. |
+| 14 | Rajat Sharma | 93.8% | 88.6% | 88.6% | 97.0% | 17.2¢ | Baseline run with default hyperparameters and default augmentation (gru_size=96, cond_size=64, lr=1e-3). |
+| 15 | Dabin Seomun | 92.8% | 87.3% | 88.6% | 97.3% | 12.4¢ | Noise augmentation using a normal distribution for SNR sampling (mean=10, std=5) & Ran 100 epochs |
+| 16 | Stefan Snyder - Baseline | 91.1% | 85.4% | 81.0% | 98.4% | 13.0¢ | Baseline run with default hyperparameters, and the baseline noise augmentation (gru_size=96, cond_size=64, lr=1e-3). |
+| 17 | Kim Huy Heng | 90.8% | 87.0% | 89.2% | 97.9% | 15.8¢ | Implemented a staged curriculum training pipeline |
+| 18 | Charis - Noise Augmentation v2 | 90.1% | 86.3% | 88.4% | 95.8% | 18.0¢ | Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3). |
+| 19 | Chris Rui Zhao | 90.0% | 82.9% | 83.4% | 93.0% | 12.6¢ | Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions. |
 
 ### RPA — Macro Average (all SNR conditions) ↑
 
@@ -51,12 +52,13 @@ Mean RPA across all 6 SNR conditions (clean, −5 dB, 0 dB, +5 dB, +10 dB, +20 d
 | 10 | Elliot Lee – Augment Mel + Wide SNR | 91.8% | 94.7% | 87.1% | 90.0% | — |
 | 11 | Festus Ewakaa Kahunla | 91.7% | 97.1% | 92.0% | 87.9% | Fixed train/eval label mismatch: VAD target now derived from f0>0 (RMVPE) instead of the RMS-energy vad label, which disagrees with RMVPE on 12.1% of frames. Added cosine annealing LR (CosineAnnealingWarmRestarts, T_0=10, T_mult=2, eta_min=1e-5). Reduced Viterbi onset penalty from 2.0 to 1.0. Trained 100 epochs from scratch (50 + 50 resume). |
 | 12 | Xin Zheng | 90.6% | 94.3% | 86.8% | 89.6% | Implemented augment_mel_batch with torch.logaddexp for numerically stable log-mel noise mixing. Applied random SNR augmentation (-10 to +30 dB) and weighted pitch loss (w-pitch=2.0) to improve robustness. Achieved 95.98% offline RPA (clean) and 91.08% RPA (-5dB SNR), with realtime browser performance at 94.35% RPA (clean) and 89.63% RPA (-5dB). |
-| 13 | Dabin Seomun | 90.2% | 92.8% | 87.3% | 88.6% | Noise augmentation using a normal distribution for SNR sampling (mean=10, std=5) & Ran 100 epochs |
-| 14 | Charis Test | 90.2% | 94.8% | 87.3% | 88.0% | Baseline run with default hyperparameters (gru_size=96, cond_size=64, lr=1e-3). |
-| 15 | Kim Huy Heng | 89.5% | 90.8% | 87.0% | 89.2% | Implemented a staged curriculum training pipeline |
-| 16 | Charis - Noise Augmentation v2 | 88.0% | 90.1% | 86.3% | 88.4% | Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3). |
-| 17 | Stefan Snyder - Baseline | 86.3% | 91.1% | 85.4% | 81.0% | Baseline run with default hyperparameters, and the baseline noise augmentation (gru_size=96, cond_size=64, lr=1e-3). |
-| 18 | Chris Rui Zhao | 86.1% | 90.0% | 82.9% | 83.4% | Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions. |
+| 13 | Priontu Chowdhury | 90.5% | 94.3% | 89.5% | 84.7% | exp_v4_1 fine-tuned the best default baseline exp1 (default training, no noise addition, no SpecAugment) using the full augmented recipe (cond_size=64, gru_size=96, epochs=100, batch_size=384, lr=1.5e-3, min_lr=2e-5, seq_len=200, w_vad=0.1, w_pitch=1.5, snr_range=[-5,20], specaugment_band=2, time_mask=12, cosine annealing, early stopping, and 20-epoch SNR curriculum), and produced the best overall results. |
+| 14 | Dabin Seomun | 90.2% | 92.8% | 87.3% | 88.6% | Noise augmentation using a normal distribution for SNR sampling (mean=10, std=5) & Ran 100 epochs |
+| 15 | Charis Test | 90.2% | 94.8% | 87.3% | 88.0% | Baseline run with default hyperparameters (gru_size=96, cond_size=64, lr=1e-3). |
+| 16 | Kim Huy Heng | 89.5% | 90.8% | 87.0% | 89.2% | Implemented a staged curriculum training pipeline |
+| 17 | Charis - Noise Augmentation v2 | 88.0% | 90.1% | 86.3% | 88.4% | Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3). |
+| 18 | Stefan Snyder - Baseline | 86.3% | 91.1% | 85.4% | 81.0% | Baseline run with default hyperparameters, and the baseline noise augmentation (gru_size=96, cond_size=64, lr=1e-3). |
+| 19 | Chris Rui Zhao | 86.1% | 90.0% | 82.9% | 83.4% | Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions. |
 
 ---
 
@@ -80,12 +82,13 @@ Fraction of voiced frames with pitch error > 50 cents on clean audio. Lower is b
 | 10 | Charis Test | 5.2% | 12.7% | 12.0% | Baseline run with default hyperparameters (gru_size=96, cond_size=64, lr=1e-3). |
 | 11 | Elliot Lee – Augment Mel + Wide SNR | 5.3% | 12.9% | 10.0% | — |
 | 12 | Xin Zheng | 5.7% | 13.2% | 10.4% | Implemented augment_mel_batch with torch.logaddexp for numerically stable log-mel noise mixing. Applied random SNR augmentation (-10 to +30 dB) and weighted pitch loss (w-pitch=2.0) to improve robustness. Achieved 95.98% offline RPA (clean) and 91.08% RPA (-5dB SNR), with realtime browser performance at 94.35% RPA (clean) and 89.63% RPA (-5dB). |
-| 13 | Rajat Sharma | 6.2% | 11.4% | 11.3% | Baseline run with default hyperparameters and default augmentation (gru_size=96, cond_size=64, lr=1e-3). |
-| 14 | Dabin Seomun | 7.2% | 12.7% | 11.4% | Noise augmentation using a normal distribution for SNR sampling (mean=10, std=5) & Ran 100 epochs |
-| 15 | Stefan Snyder - Baseline | 8.9% | 14.6% | 19.0% | Baseline run with default hyperparameters, and the baseline noise augmentation (gru_size=96, cond_size=64, lr=1e-3). |
-| 16 | Kim Huy Heng | 9.2% | 13.0% | 10.8% | Implemented a staged curriculum training pipeline |
-| 17 | Charis - Noise Augmentation v2 | 9.9% | 13.7% | 11.6% | Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3). |
-| 18 | Chris Rui Zhao | 10.1% | 17.1% | 16.7% | Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions. |
+| 13 | Priontu Chowdhury | 5.7% | 10.5% | 15.3% | exp_v4_1 fine-tuned the best default baseline exp1 (default training, no noise addition, no SpecAugment) using the full augmented recipe (cond_size=64, gru_size=96, epochs=100, batch_size=384, lr=1.5e-3, min_lr=2e-5, seq_len=200, w_vad=0.1, w_pitch=1.5, snr_range=[-5,20], specaugment_band=2, time_mask=12, cosine annealing, early stopping, and 20-epoch SNR curriculum), and produced the best overall results. |
+| 14 | Rajat Sharma | 6.2% | 11.4% | 11.3% | Baseline run with default hyperparameters and default augmentation (gru_size=96, cond_size=64, lr=1e-3). |
+| 15 | Dabin Seomun | 7.2% | 12.7% | 11.4% | Noise augmentation using a normal distribution for SNR sampling (mean=10, std=5) & Ran 100 epochs |
+| 16 | Stefan Snyder - Baseline | 8.9% | 14.6% | 19.0% | Baseline run with default hyperparameters, and the baseline noise augmentation (gru_size=96, cond_size=64, lr=1e-3). |
+| 17 | Kim Huy Heng | 9.2% | 13.0% | 10.8% | Implemented a staged curriculum training pipeline |
+| 18 | Charis - Noise Augmentation v2 | 9.9% | 13.7% | 11.6% | Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3). |
+| 19 | Chris Rui Zhao | 10.1% | 17.1% | 16.7% | Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions. |
 
 ### Gross Error Rate — Macro Average (all SNR conditions) ↓
 
@@ -105,12 +108,13 @@ Mean gross error rate across all 6 SNR conditions. Lower is better.
 | 10 | Elliot Lee – Augment Mel + Wide SNR | 8.2% | 5.3% | 12.9% | 10.0% | — |
 | 11 | Festus Ewakaa Kahunla | 8.3% | 2.9% | 8.0% | 12.1% | Fixed train/eval label mismatch: VAD target now derived from f0>0 (RMVPE) instead of the RMS-energy vad label, which disagrees with RMVPE on 12.1% of frames. Added cosine annealing LR (CosineAnnealingWarmRestarts, T_0=10, T_mult=2, eta_min=1e-5). Reduced Viterbi onset penalty from 2.0 to 1.0. Trained 100 epochs from scratch (50 + 50 resume). |
 | 12 | Xin Zheng | 9.4% | 5.7% | 13.2% | 10.4% | Implemented augment_mel_batch with torch.logaddexp for numerically stable log-mel noise mixing. Applied random SNR augmentation (-10 to +30 dB) and weighted pitch loss (w-pitch=2.0) to improve robustness. Achieved 95.98% offline RPA (clean) and 91.08% RPA (-5dB SNR), with realtime browser performance at 94.35% RPA (clean) and 89.63% RPA (-5dB). |
-| 13 | Dabin Seomun | 9.8% | 7.2% | 12.7% | 11.4% | Noise augmentation using a normal distribution for SNR sampling (mean=10, std=5) & Ran 100 epochs |
-| 14 | Charis Test | 9.8% | 5.2% | 12.7% | 12.0% | Baseline run with default hyperparameters (gru_size=96, cond_size=64, lr=1e-3). |
-| 15 | Kim Huy Heng | 10.5% | 9.2% | 13.0% | 10.8% | Implemented a staged curriculum training pipeline |
-| 16 | Charis - Noise Augmentation v2 | 12.0% | 9.9% | 13.7% | 11.6% | Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3). |
-| 17 | Stefan Snyder - Baseline | 13.7% | 8.9% | 14.6% | 19.0% | Baseline run with default hyperparameters, and the baseline noise augmentation (gru_size=96, cond_size=64, lr=1e-3). |
-| 18 | Chris Rui Zhao | 13.9% | 10.1% | 17.1% | 16.7% | Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions. |
+| 13 | Priontu Chowdhury | 9.5% | 5.7% | 10.5% | 15.3% | exp_v4_1 fine-tuned the best default baseline exp1 (default training, no noise addition, no SpecAugment) using the full augmented recipe (cond_size=64, gru_size=96, epochs=100, batch_size=384, lr=1.5e-3, min_lr=2e-5, seq_len=200, w_vad=0.1, w_pitch=1.5, snr_range=[-5,20], specaugment_band=2, time_mask=12, cosine annealing, early stopping, and 20-epoch SNR curriculum), and produced the best overall results. |
+| 14 | Dabin Seomun | 9.8% | 7.2% | 12.7% | 11.4% | Noise augmentation using a normal distribution for SNR sampling (mean=10, std=5) & Ran 100 epochs |
+| 15 | Charis Test | 9.8% | 5.2% | 12.7% | 12.0% | Baseline run with default hyperparameters (gru_size=96, cond_size=64, lr=1e-3). |
+| 16 | Kim Huy Heng | 10.5% | 9.2% | 13.0% | 10.8% | Implemented a staged curriculum training pipeline |
+| 17 | Charis - Noise Augmentation v2 | 12.0% | 9.9% | 13.7% | 11.6% | Baseline run with default hyperparameters, with the basic noise augmentation and clean signal 10% of the time (gru_size=96, cond_size=64, lr=1e-3). |
+| 18 | Stefan Snyder - Baseline | 13.7% | 8.9% | 14.6% | 19.0% | Baseline run with default hyperparameters, and the baseline noise augmentation (gru_size=96, cond_size=64, lr=1e-3). |
+| 19 | Chris Rui Zhao | 13.9% | 10.1% | 17.1% | 16.7% | Added augmentations, specaugment, cosine annealing, and BCEWithLogitsLoss with Claude Opus 4.7's suggestions. |
 
 ---
 
